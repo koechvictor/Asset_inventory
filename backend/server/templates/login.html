@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="{{url_for('static', filename='styles.css')}}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <h1>Login</h1>
+    <form action="" method="post">
+        {{form.hidden_tag()}}
+
+        {% with messages = get_flashed_messages()%}
+        {% if messages %}
+            {% for message in messages %}
+                <span class="errordisplay">{{ message }}</span>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+        {{form.email.label}}</br>
+        {%if form.email.errors%}
+            {{form.email}}</br>
+            {%for error in form.email.errors%}
+                <span class="errordisplay">{{error}}</span><br>
+            {%endfor%}
+            {%else%}
+                {{form.email}}</br>
+        {%endif%}
+
+        {{form.password.label}}</br>
+        {%if form.password.errors%}
+            {{form.password}}</br>
+            {%for error in form.password.errors%}
+                <span class="errordisplay">{{error}}</span><br>
+            {%endfor%}
+            {%else%}
+                {{form.password}}</br>
+        {%endif%}
+
+        {{form.submit}}
+        
+    </form>
+
+    <h3>or <a href="/register">SignUp</a></h3>
+</body>
+</html>
