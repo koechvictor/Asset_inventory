@@ -1,38 +1,31 @@
 import axios from "axios";
 
-// Base URL for your backend API
-const API_URL = "http://localhost:5000"; // Change this if your backend is hosted elsewhere
+const API_URL = "http://localhost:5000";
 
-// Create an Axios instance with the base URL and default headers
 export const api = axios.create({
   baseURL: API_URL,
   headers: {
-    "Content-Type": "application/json", // JSON content type
+    "Content-Type": "application/json",
   },
-  withCredentials: true, // Send cookies with requests (important for session-based authentication)
+  withCredentials: true,
 });
 
-// Generic function to handle API requests
 const handleApiCall = async (method, url, data = null) => {
   try {
-    const response = await api[method](url, data); // Perform the API request (GET, POST, etc.)
-    return response.data; // Return the response data
+    const response = await api[method](url, data);
+    return response.data;
   } catch (error) {
     console.error("API error:", error);
 
     return error.response
-      ? error.response.data // Return the error response if available
-      : { message: "An error occurred. Please try again later." }; // Generic error message
+      ? error.response.data
+      : { message: "An error occurred. Please try again later." };
   }
 };
 
-// API calls to interact with the backend
-
-// Register a new user
 export const registerUser = (userData) =>
   handleApiCall("post", "/register", userData);
 
-// Login a user
 export const loginUser = (credentials) =>
   handleApiCall("post", "/login", credentials);
 
@@ -43,7 +36,7 @@ export const logoutUser = () => handleApiCall("get", "/logout");
 export const checkAuth = async () => {
   try {
     const response = await api.get("/my_profile");
-    return response.data.user; // Return user data if authenticated
+    return response.data.user;
   } catch (error) {
     console.error("Authentication error:", error);
     return null; // Return null if not authenticated
@@ -52,11 +45,12 @@ export const checkAuth = async () => {
 
 // Fetch assets (protected route, requires authentication)
 export const fetchAssets = () => handleApiCall("get", "/assets");
-
-// Fetch departments (protected route, requires authentication)
 export const fetchDepartments = () => handleApiCall("get", "/departments");
-
-// Fetch categories (protected route, requires authentication)
 export const fetchCategories = () => handleApiCall("get", "/categories");
+export const fetchProfile = () => handleApiCall("get", "/my_profile");
+export const fetchRequests = () => handleApiCall("get", "/requests");
+export const fetchMyRequests = () => handleApiCall("get", "/my_requests");
+export const submitNewRequest = (newRequest) =>
+  handleApiCall("post", "/new_request", newRequest);
 
 export default api;

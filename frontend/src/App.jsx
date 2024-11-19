@@ -12,7 +12,9 @@ import AdminDashboard from "./pages/AdminDashboard";
 import UserDashboard from "./pages/UserDashboard";
 import ManagerDashboard from "./pages/ManagerDashboard";
 import AboutPage from "./pages/AboutPage";
-import { checkAuth } from "./services/api"; // Import checkAuth function
+import Profile from "./pages/UserProfile";
+import { checkAuth } from "./services/api";
+import Logout from "./pages/Logout";
 
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -24,16 +26,20 @@ function App() {
   // Effect to check if user is authenticated
   useEffect(() => {
     const fetchUser = async () => {
-      const authenticatedUser = await checkAuth(); // Call the API to check user authentication
+      const authenticatedUser = await checkAuth();
       setUser(authenticatedUser);
-      setLoading(false); // Stop loading once user state is set
+      setLoading(false);
     };
 
     fetchUser();
   }, []);
 
-  // If still loading, show loading message
   if (loading) return <div>Loading...</div>;
+
+  const handleLogout = async () => {
+    await logoutUser(); // Call the API to log the user out
+    setUser(null);
+  };
 
   return (
     <Router>
@@ -53,16 +59,33 @@ function App() {
         {/* Private Routes (Require Authentication) */}
         <Route
           path="/admin-dashboard"
-          element={user ? <AdminDashboard /> : <Navigate to="/login" />}
+          element={
+            user && user.role === "Admin" ? (
+              <AdminDashboard />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/profile"
+          element={user ? <Profile user={user} /> : <Navigate to="/" />}
         />
         <Route
           path="/user-dashboard"
-          element={user ? <UserDashboard /> : <Navigate to="/login" />}
+          element={
+            user && user.role === "Employee" ? (
+              <UserDashboard />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
         <Route
           path="/manager-dashboard"
           element={user ? <ManagerDashboard /> : <Navigate to="/login" />}
         />
+        <Route path="/logout" element={<Logout onLogout={handleLogout} />} />
 
         {/* Catch-all Route for 404 */}
         <Route path="*" element={<div>404 Not Found</div>} />

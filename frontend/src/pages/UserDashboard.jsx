@@ -1,61 +1,76 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Logout from "./Logout";
+import {
+  fetchAssets,
+  fetchMyRequests,
+  submitNewRequest,
+} from "../services/api";
 
 function UserDashboard() {
+  const [message, setMessage] = useState("");
   const [assetType, setAssetType] = useState("");
   const [requestType, setRequestType] = useState("");
-  const [requestedBy, setRequestedBy] = useState("");
+  const [assetId, setAssetId] = useState("");
   const [quantity, setQuantity] = useState("");
   const [urgency, setUrgency] = useState("");
   const [reason, setReason] = useState("");
-  const [status, setStatus] = useState("Pending");
-  const [createdAt, setCreatedAt] = useState("");
   const [requests, setRequests] = useState([]);
   const [assets, setAssets] = useState([]);
   const [activeSection, setActiveSection] = useState("viewRequests");
   const navigate = useNavigate();
 
   useEffect(() => {
-    const currentTimestamp = new Date().toISOString();
-    setCreatedAt(currentTimestamp);
-
-    const fetchData = async () => {
-      try {
-        const [assetsResponse, requestsResponse] = await Promise.all([
-          axios.get("http://localhost:5000/assets"),
-          axios.get("http://localhost:5000/requests"),
-        ]);
-
-        setAssets(assetsResponse.data);
-        setRequests(requestsResponse.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
+    const getAssets = async () => {
+      const data = await fetchAssets();
+      if (data.message) {
+        setMessage(data.message);
+      } else {
+        setAssets(data.assets);
       }
     };
+    getAssets();
+  }, []);
 
-    fetchData();
+  useEffect(() => {
+    const getMyRequests = async () => {
+      const data = await fetchMyRequests();
+      if (data.message) {
+        setMessage(data.message);
+      } else {
+        setRequests(data.requests);
+      }
+    };
+    getMyRequests();
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const newRequest = {
-      id: requests.length + 1,
+      asset_type: assetType,
       request_type: requestType,
-      quantity,
-      urgency,
-      reason,
-      status,
-      created_at: createdAt,
+      asset_id: assetId,
+      quantity: quantity,
+      urgency: urgency,
+      reason: reason,
     };
 
     try {
-      await axios.post("http://localhost:5000/requests", newRequest);
-      setRequests([...requests, newRequest]);
-      handleCancel();
-      setActiveSection("viewRequests"); // Redirect to view requests after submission
+      // Call the API to submit the new request
+      const response = await submitNewRequest(newRequest);
+
+      // Assuming the response has a 'message' field
+      if (response.message) {
+        setMessage(response.message); // Set the success/error message
+      } else {
+        setMessage("Request submitted successfully!");
+        setRequests((prevRequests) => [...prevRequests, newRequest]); // Add to requests list
+      }
     } catch (error) {
       console.error("Error submitting request:", error);
+      setMessage("An error occurred while submitting the request.");
     }
   };
 
@@ -66,10 +81,6 @@ function UserDashboard() {
     setQuantity("");
     setUrgency("");
     setReason("");
-  };
-
-  const handleLogout = () => {
-    navigate("/");
   };
 
   return (
@@ -95,9 +106,8 @@ function UserDashboard() {
           >
             Make a New Request
           </li>
-          <button onClick={handleLogout} style={styles.logoutButton}>
-            Logout
-          </button>
+
+          <Logout />
         </ul>
       </div>
 
@@ -142,7 +152,7 @@ function UserDashboard() {
                 {assets.map((asset) => (
                   <li key={asset.id} style={styles.assetItem}>
                     <img
-                      src={asset.image_url}
+                      src={asset.asset_image}
                       alt={asset.asset_name}
                       style={styles.assetImage}
                     />
@@ -184,18 +194,13 @@ function UserDashboard() {
               <option value="Repair">Repair</option>
             </select>
 
-            <label style={styles.label}>Requested By (Department)</label>
-            <select
-              value={requestedBy}
-              onChange={(e) => setRequestedBy(e.target.value)}
+            <label style={styles.label}>Asset Id</label>
+            <input
+              type="number"
+              value={assetId}
+              onChange={(e) => setAssetId(e.target.value)}
               style={styles.input}
-            >
-              <option value="">Select Department</option>
-              <option value="IT">IT</option>
-              <option value="HR">HR</option>
-              <option value="Finance">Finance</option>
-              <option value="Marketing">Marketing</option>
-            </select>
+            />
 
             <label style={styles.label}>Quantity</label>
             <input
@@ -222,17 +227,6 @@ function UserDashboard() {
               type="text"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              style={styles.input}
-            />
-
-            <label style={styles.label}>Status</label>
-            <input type="text" value={status} readOnly style={styles.input} />
-
-            <label style={styles.label}>Created/Updated at</label>
-            <input
-              type="text"
-              value={createdAt}
-              readOnly
               style={styles.input}
             />
 

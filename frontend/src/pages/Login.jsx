@@ -1,14 +1,12 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/api";
 import styles from "./Login.module.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-function Login() {
+function Login({ onLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const navigate = useNavigate(); // Use react-router's navigate hook
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,8 +19,15 @@ function Login() {
       setMessage("Login successful!");
       onLogin(data.user_id);
 
-      // Redirect to the user dashboard
-      navigate("/user-dashboard");
+      const navigate = useNavigate();
+
+      if (data.role === "admin") {
+        navigate("/admin-dashboard");
+      } else if (data.role === "manager") {
+        navigate("/manager-dashboard");
+      } else {
+        navigate("/user-dashboard");
+      }
     }
   };
 
@@ -33,21 +38,24 @@ function Login() {
           <form onSubmit={handleSubmit}>
             <h1 className={styles["main-title"]}>Asset Maze</h1>
             <h2>Login</h2>
+            {message && <p>{message}</p>}
             <div className={styles["input-group"]}>
               <input
-                type="text"
-                required
+                type="email"
+                placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
               />
               <label>Email</label>
             </div>
             <div className={styles["input-group"]}>
               <input
                 type="password"
-                required
+                placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
               <label>Password</label>
             </div>
