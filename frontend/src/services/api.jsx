@@ -28,8 +28,6 @@ export const registerUser = (userData) =>
 
 export const loginUser = (credentials) =>
   handleApiCall("post", "/login", credentials);
-
-// Logout the user
 export const logoutUser = () => handleApiCall("get", "/logout");
 
 // Check authentication status (returns user data if authenticated)
@@ -52,5 +50,7 @@ export const fetchRequests = () => handleApiCall("get", "/requests");
 export const fetchMyRequests = () => handleApiCall("get", "/my_requests");
 export const submitNewRequest = (newRequest) =>
   handleApiCall("post", "/new_request", newRequest);
+export const submitNewUser = (newUser) =>
+  handleApiCall("post", "/register", newUser);
 
 export default api;

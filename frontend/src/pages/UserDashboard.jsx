@@ -61,9 +61,8 @@ function UserDashboard() {
       // Call the API to submit the new request
       const response = await submitNewRequest(newRequest);
 
-      // Assuming the response has a 'message' field
       if (response.message) {
-        setMessage(response.message); // Set the success/error message
+        setMessage(response.message);
       } else {
         setMessage("Request submitted successfully!");
         setRequests((prevRequests) => [...prevRequests, newRequest]); // Add to requests list

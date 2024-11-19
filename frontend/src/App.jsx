@@ -44,11 +44,16 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Public Routes */}
         <Route path="/" element={<HomePage />} />
         <Route
           path="/signup"
-          element={user ? <Navigate to="/admin-dashboard" /> : <SignUp />}
+          element={
+            user && user.role === "Admin" ? (
+              <SignUp />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
         <Route
           path="/login"
@@ -56,7 +61,6 @@ function App() {
         />
         <Route path="/about" element={<AboutPage />} />
 
-        {/* Private Routes (Require Authentication) */}
         <Route
           path="/admin-dashboard"
           element={
@@ -74,7 +78,7 @@ function App() {
         <Route
           path="/user-dashboard"
           element={
-            user && user.role === "Employee" ? (
+            user && user.role != "Admin" ? (
               <UserDashboard />
             ) : (
               <Navigate to="/login" />
