@@ -6,12 +6,18 @@ from flask_cors import CORS
 from flask_migrate import Migrate
 import os
 import urllib.parse
+from datetime import timedelta
 from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'jfdcbgfcxdgfddfgbgffhdhsjdf'
 CORS(app, supports_credentials=True, origins="http://localhost:5173")
+# In your Flask app config
+app.config['SESSION_COOKIE_SECURE'] = True  # Only send cookies over HTTPS (recommended for production)
+app.config['SESSION_COOKIE_HTTPONLY'] = True  # Prevent JavaScript access to cookies
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)  # Adjust session expiration time as needed
+
 DATABASE_URL = os.getenv("supabase_url")
 
 if DATABASE_URL:
