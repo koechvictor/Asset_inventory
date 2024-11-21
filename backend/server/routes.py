@@ -126,6 +126,10 @@ def asset(id):
     }
     return jsonify({'asset': asset_data})
 
+@app.route('/', methods=['GET'])
+def Testing():
+    return '<h1>😂🤣😆😄😁😅</h1>'
+
 
 @app.route('/add_asset', methods=['POST'])
 @login_required
@@ -185,6 +189,7 @@ def requests():
     request_data = []
     for req in requests:
         req = {
+            'request_id': req.id,
             'request_type': req.request_type,
             'asset_name': req.related_asset.asset_name if req.related_asset else 'Not specified',
             'asset_image': req.related_asset.image_url if req.related_asset else 'Not specified',
@@ -286,14 +291,14 @@ def review_request(id):
         return jsonify({'message': 'Request has already been reviewed'}), 400
     
     elif data.get("status_id") == 2:
-        new_review = ReviewRequests(request_id=id, reviewed_by=current_user.id, status_id=data.get("status_id"),
+        new_review = ReviewRequests(request_id=id, reviewed_by=current_user.id, status_id=2,
                                 review_comment=data.get("review_comment"), reviewed_at=datetime.utcnow())
         Request.query.filter_by(id=id).update({'status_id': 2})
         db.session.add(new_review)
         db.session.commit()
         return jsonify({'message': 'Request approved successfully'})
     else:
-        new_review = ReviewRequests(request_id=id, reviewed_by=current_user.id, status_id=data.get("status_id"),
+        new_review = ReviewRequests(request_id=id, reviewed_by=current_user.id, status_id=3,
                                 review_comment=data.get("review_comment"), reviewed_at=datetime.utcnow())
         Request.query.filter_by(id=id).update({'status_id': 3})
         db.session.add(new_review)

@@ -6,7 +6,9 @@ import {
   fetchAssets,
   fetchMyRequests,
   submitNewRequest,
+  submitReview,
 } from "../services/api";
+import { w } from "maath/dist/misc-19a3ec46.esm";
 
 function UserDashboard() {
   const [message, setMessage] = useState("");
@@ -71,6 +73,29 @@ function UserDashboard() {
       console.error("Error submitting request:", error);
       setMessage("An error occurred while submitting the request.");
     }
+
+    const handleSubmitReview = async (e) => {
+      e.preventDefault();
+
+      const review = {
+        rating: 5,
+        feedback: "Great service!",
+      };
+
+      try {
+        // Call the API to submit the review
+        const response = await submitReview(review);
+
+        if (response.message) {
+          setMessage(response.message);
+        } else {
+          setMessage("Review submitted successfully!");
+        }
+      } catch (error) {
+        console.error("Error submitting review:", error);
+        setMessage("An error occurred while submitting the review.");
+      }
+    };
   };
 
   const handleCancel = () => {
@@ -135,9 +160,7 @@ function UserDashboard() {
                     <td style={styles.tableCell}>{request.urgency}</td>
                     <td style={styles.tableCell}>{request.reason}</td>
                     <td style={styles.tableCell}>{request.status}</td>
-                    <td style={styles.tableCell}>
-                      {new Date(request.created_at).toLocaleDateString()}
-                    </td>
+                    <td style={styles.tableCell}>{request.created_at}</td>
                   </tr>
                 ))}
               </tbody>

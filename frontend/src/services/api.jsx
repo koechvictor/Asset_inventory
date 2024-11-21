@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5000";
+const API_URL = "https://asset-inventory-2.onrender.com";
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -52,5 +52,8 @@ export const submitNewRequest = (newRequest) =>
   handleApiCall("post", "/new_request", newRequest);
 export const submitNewUser = (newUser) =>
   handleApiCall("post", "/register", newUser);
+export const submitReview = (review) => {
+  return handleApiCall("post", `/request/${review.id}/review`, review);
+};
 
 export default api;

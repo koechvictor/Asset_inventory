@@ -2,10 +2,13 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Logout from "./Logout";
-import { fetchAssets, fetchRequests } from "../services/api";
+import { fetchAssets, fetchRequests, submitReview } from "../services/api";
 
 function AdminDashboard() {
   const navigate = useNavigate();
+  const [message, setMessage] = useState("");
+
+  const [review, setReview] = useState("");
   const [assets, setAssets] = useState([]);
   const [requests, setRequests] = useState([]);
   const [selectedSection, setSelectedSection] = useState("viewAssets");
@@ -54,6 +57,30 @@ function AdminDashboard() {
     };
     getRequests();
   }, []);
+
+  const handleReview = (requestId, reviewStatus) => {
+    const review = {
+      id: requestId,
+      review: reviewStatus,
+    };
+
+    handleSubmitNewReview(review);
+  };
+
+  const handleSubmitNewReview = async (review) => {
+    try {
+      const data = await submitReview(review);
+      if (data.message) {
+        setMessage(data.message);
+      } else {
+        setReview(data.requests);
+        window.location.reload(handleSectionChange("viewRequests"));
+      }
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      setMessage("An error occurred while submitting the review.");
+    }
+  };
 
   const handleSectionChange = (section) => {
     setSelectedSection(section);
@@ -106,28 +133,18 @@ function AdminDashboard() {
     } catch (error) {
       console.error("Error deleting asset:", error);
     }
-  };
 
-  const handleApprove = async (id) => {
-    try {
-      await axios.patch(`http://localhost:5000/requests/${id}`, {
-        status_id: 2,
-      }); // 2 for Approved
-      fetchRequests();
-    } catch (error) {
-      console.error("Error approving request:", error);
-    }
-  };
-
-  const handleReject = async (id) => {
-    try {
-      await axios.patch(`http://localhost:5000/requests/${id}`, {
-        status_id: 3,
-      }); // 3 for Rejected
-      fetchRequests();
-    } catch (error) {
-      console.error("Error rejecting request:", error);
-    }
+    useEffect(() => {
+      const submitNewReview = async () => {
+        const data = await submitNewReview();
+        if (data.message) {
+          setMessage(data.message);
+        } else {
+          setReview(data.requests);
+        }
+      };
+      submitNewReview();
+    }, []);
   };
 
   return (
@@ -200,29 +217,48 @@ function AdminDashboard() {
               </thead>
               <tbody>
                 {requests.map((request) => (
-                  <tr key={request.id}>
+                  <tr key={request.request_id}>
                     <td style={styles.tableCell}>{request.request_type}</td>
                     <td style={styles.tableCell}>{request.quantity}</td>
                     <td style={styles.tableCell}>{request.urgency}</td>
                     <td style={styles.tableCell}>{request.reason}</td>
                     <td style={styles.tableCell}>{request.status} </td>
                     <td style={styles.tableCell}>
-                      {request.status === 1 && (
+                      {
                         <>
-                          <button
-                            onClick={() => handleApprove(request.id)}
-                            style={styles.approveButton}
-                          >
-                            Approve
-                          </button>
-                          <button
-                            onClick={() => handleReject(request.id)}
-                            style={styles.rejectButton}
-                          >
-                            Reject
-                          </button>
+                          {request.status === "Pending" ? (
+                            <form action="">
+                              <button
+                                type="button"
+                                value={2}
+                                onClick={() => {
+                                  //alert(
+                                  //"Approve button clicked for request ID:" +
+                                  //</form> request.request_id
+                                  // );
+                                  handleReview(request.request_id, 2);
+                                }}
+                                style={styles.approveButton}
+                              >
+                                Approve
+                              </button>
+
+                              <button
+                                type="button"
+                                value={3}
+                                onClick={() =>
+                                  handleReview(request.request_id, 3)
+                                } // Reject
+                                style={styles.rejectButton}
+                              >
+                                Reject
+                              </button>
+                            </form>
+                          ) : (
+                            <span>{request.status}</span> // If not "Pending", show the status
+                          )}
                         </>
-                      )}
+                      }
                     </td>
                   </tr>
                 ))}
