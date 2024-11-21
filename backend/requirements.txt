@@ -5,5 +5,4 @@ Flask-Login==0.6.2
 Flask-CORS==3.0.9
 Flask-Migrate==4.0.0
 python-dotenv==1.0.0
-Werkzeug==2.2.3  # Downgrade to this version
-
+Werkzeug>=2.3.7  # Ensure compatibility with Flask 2.3.3
