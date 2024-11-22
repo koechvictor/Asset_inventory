@@ -128,7 +128,7 @@ def asset(id):
 
 @app.route('/', methods=['GET'])
 def Testing():
-    return '<h1>😂🤣😆😄😁😅</h1>'
+    return '<h1>Backend => Asset Inventory Management</h1>'
 
 
 @app.route('/add_asset', methods=['POST'])
