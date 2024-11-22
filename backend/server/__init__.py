@@ -12,7 +12,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'jfdcbgfcxdgfddfgbgffhdhsjdf'
-CORS(app, supports_credentials=True, origins="https://front-end-asset-inventory.vercel.app/")
+CORS(app, supports_credentials=True)
 # In your Flask app config
 app.config['SESSION_COOKIE_SECURE'] = True  # Only send cookies over HTTPS (recommended for production)
 app.config['SESSION_COOKIE_HTTPONLY'] = True  # Prevent JavaScript access to cookies
